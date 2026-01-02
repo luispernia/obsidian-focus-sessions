@@ -1,8 +1,8 @@
 import { Plugin, WorkspaceLeaf } from "obsidian";
-import { SessionManager } from "./services/session-manager";
-import { formatDuration, getRemainingTime } from "./utils/time-utils";
-import { FOCUS_SESSION_VIEW_TYPE, FocusSessionView } from "./ui/focus-session-view";
-import { SessionModal } from "./ui/session-modal";
+import { SessionManager } from "@/services/session-manager";
+import { formatDuration, getRemainingTime } from "@/utils/time-utils";
+import { FOCUS_SESSION_VIEW_TYPE, FocusSessionView } from "@/ui/focus-session-view";
+import { SessionModal } from "@/ui/session-modal";
 
 export default class FocusSessionsPlugin extends Plugin {
 	sessionManager: SessionManager;

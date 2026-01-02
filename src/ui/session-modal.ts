@@ -1,6 +1,6 @@
 import { App, Modal, ButtonComponent } from "obsidian";
-import { SessionManager } from "../services/session-manager";
-import { getRemainingTime } from "../utils/time-utils";
+import { SessionManager } from "@/services/session-manager";
+import { getRemainingTime } from "@/utils/time-utils";
 
 export class SessionModal extends Modal {
 	private sessionManager: SessionManager;

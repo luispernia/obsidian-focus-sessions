@@ -1,6 +1,6 @@
 import { ItemView, WorkspaceLeaf, setIcon } from "obsidian";
-import { SessionManager } from "../services/session-manager";
-import { formatDuration, getRemainingTime } from "../utils/time-utils";
+import { SessionManager } from "@/services/session-manager";
+import { formatDuration, getRemainingTime } from "@/utils/time-utils";
 
 export const FOCUS_SESSION_VIEW_TYPE = "focus-session-view";
 

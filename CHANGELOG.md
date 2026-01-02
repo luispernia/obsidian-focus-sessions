@@ -1,3 +1,9 @@
+# [1.1.0](https://github.com/luispernia/obsidian-focus-sessions/compare/v1.0.0...v1.1.0) (2026-01-02)
+
+### Features
+
+- Implement a redesigned focus session view with a circular timer, dedicated styling, and refactored session management. ([8edd1df](https://github.com/luispernia/obsidian-focus-sessions/commit/8edd1df4aa7d870f624efa8195b80931580ea3a6))
+
 # 1.0.0 (2026-01-02)
 
 ### Features

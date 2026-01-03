@@ -47,8 +47,27 @@ export class SessionControls {
 			}
 		};
 
-		// Add Time Button (+5m) - replacing 'skip' for now as per plan
+		// Short Break Button
+		const shortBreakBtn = controls.createDiv({ cls: "fs-control-btn fs-secondary" });
+		shortBreakBtn.setAttribute("aria-label", "Short break");
+		setIcon(shortBreakBtn, "coffee");
+		shortBreakBtn.onclick = () => {
+			this.sessionManager.stopSession(); // Ensure stopped first
+			this.sessionManager.startSession("Short Break");
+		};
+
+		// Long Break Button
+		const longBreakBtn = controls.createDiv({ cls: "fs-control-btn fs-secondary" });
+		longBreakBtn.setAttribute("aria-label", "Long break");
+		setIcon(longBreakBtn, "armchair"); // or another icon
+		longBreakBtn.onclick = () => {
+			this.sessionManager.stopSession();
+			this.sessionManager.startSession("Long Break");
+		};
+
+		// Add Time Button (+5m)
 		const addTimeBtn = controls.createDiv({ cls: "fs-control-btn fs-secondary" });
+		addTimeBtn.setAttribute("aria-label", "Add 5m");
 		setIcon(addTimeBtn, "plus");
 		addTimeBtn.onclick = () => {
 			this.sessionManager.addTime(5);

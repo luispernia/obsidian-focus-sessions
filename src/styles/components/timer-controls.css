@@ -1,0 +1,44 @@
+/* Timer Controls Enhancements */
+
+/* Editable Timer Display */
+.fs-timer-editable {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 15px;
+}
+
+.fs-timer-adjust {
+	cursor: pointer;
+	font-size: 1.2em;
+	/* Slightly smaller than timer text */
+	color: var(--text-muted);
+	user-select: none;
+	transition:
+		color 0.2s ease,
+		transform 0.1s ease;
+	padding: 0 5px;
+}
+
+.fs-timer-adjust:hover {
+	color: var(--text-normal);
+	transform: scale(1.1);
+}
+
+.fs-timer-adjust:active {
+	transform: scale(0.95);
+}
+
+/* Ensure controls container handles more buttons */
+.fs-controls {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	gap: 12px;
+	margin-top: 20px;
+	flex-wrap: wrap;
+	/* Allow wrapping if needed on small screens */
+}
+
+/* Tooltip style for buttons (removed empty rule) */
+/* .fs-control-btn[aria-label]:hover::after { } */

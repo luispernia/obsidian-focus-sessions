@@ -56,6 +56,10 @@ export class SessionTimer {
 		let displayTime = "25:00";
 		let labelText = "DEEP WORK";
 
+		// Clear only dynamic controls if needed, but for now we'll just handle display text
+		// In a React/svelte app we'd bind state, here we're manipulating DOM.
+		// Let's create the +/- controls if they don't exist and we are IDLE.
+
 		if (session) {
 			const remainingSec = getRemainingTime(
 				session.durationMinutes,
@@ -74,6 +78,11 @@ export class SessionTimer {
 				this.timerContainer.classList.remove("fs-timer-paused");
 			}
 
+			this.timeDisplayEl.removeClass("fs-timer-editable");
+			// Hide +/- controls if they were appended
+			const controls = this.timeDisplayEl.querySelectorAll(".fs-timer-adjust");
+			controls.forEach((el) => el.remove());
+
 			if (this.circleProgress) {
 				const radius = 40;
 				const circumference = 2 * Math.PI * radius;
@@ -85,12 +94,48 @@ export class SessionTimer {
 				this.circleProgress.setAttribute("stroke-dashoffset", offset.toString());
 			}
 		} else {
-			// Reset circle when no session
+			// IDLE STATE
 			this.timerContainer.classList.remove("fs-timer-running");
+			this.timerContainer.classList.remove("fs-timer-paused");
+
+			const customDuration = this.sessionManager.getCustomDuration();
+			displayTime = `${customDuration}:00`;
+			labelText = "READY";
+
 			if (this.circleProgress) {
 				this.circleProgress.removeAttribute("stroke-dasharray");
 				this.circleProgress.removeAttribute("stroke-dashoffset");
 			}
+
+			// Enhanced IDLE UI
+			if (!this.timeDisplayEl.querySelector(".fs-timer-adjust")) {
+				this.timeDisplayEl.addClass("fs-timer-editable");
+				this.timeDisplayEl.empty(); // Clear text to rebuild structure
+
+				const minusBtn = this.timeDisplayEl.createSpan({ cls: "fs-timer-adjust fs-adjust-minus" });
+				minusBtn.textContent = "-";
+				minusBtn.onclick = (e) => {
+					e.stopPropagation();
+					this.sessionManager.setCustomDuration(customDuration - 5);
+				};
+
+				const timeText = this.timeDisplayEl.createSpan({ cls: "fs-timer-value" });
+				timeText.textContent = displayTime;
+
+				const plusBtn = this.timeDisplayEl.createSpan({ cls: "fs-timer-adjust fs-adjust-plus" });
+				plusBtn.textContent = "+";
+				plusBtn.onclick = (e) => {
+					e.stopPropagation();
+					this.sessionManager.setCustomDuration(customDuration + 5);
+				};
+			} else {
+				// Update just the text
+				const timeText = this.timeDisplayEl.querySelector(".fs-timer-value");
+				if (timeText) timeText.textContent = displayTime;
+			}
+			// Return early since we handled DOM manually for idle
+			this.labelEl.textContent = labelText;
+			return;
 		}
 
 		this.timeDisplayEl.textContent = displayTime;

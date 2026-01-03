@@ -14,8 +14,20 @@ export class SessionManager {
 	private listeners: (() => void)[] = [];
 	private settings: FocusSessionSettings;
 
+	private customDuration: number;
+
 	constructor(settings: FocusSessionSettings) {
 		this.settings = settings;
+		this.customDuration = settings.focusDuration;
+	}
+
+	setCustomDuration(minutes: number) {
+		this.customDuration = Math.max(1, minutes); // Minimum 1 minute
+		this.notifyListeners();
+	}
+
+	getCustomDuration(): number {
+		return this.customDuration;
 	}
 
 	startSession(name: string, durationMinutes?: number) {
@@ -29,7 +41,7 @@ export class SessionManager {
 			} else if (name === "Long Break") {
 				duration = this.settings.longBreakDuration;
 			} else {
-				duration = this.settings.focusDuration;
+				duration = this.customDuration;
 			}
 		}
 

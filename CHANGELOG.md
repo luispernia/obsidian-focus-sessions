@@ -1,3 +1,9 @@
+# [0.4.0](https://github.com/luispernia/obsidian-focus-sessions/compare/v0.3.0...v0.4.0) (2026-01-03)
+
+### Features
+
+- Add configurable focus, short, and long break durations with settings UI and integrate them into session management, while removing all existing styles. ([583c96f](https://github.com/luispernia/obsidian-focus-sessions/commit/583c96f6c1ae351b6784682aeb3a785e1225727c))
+
 # [0.3.0](https://github.com/luispernia/obsidian-focus-sessions/compare/v0.2.0...v0.3.0) (2026-01-03)
 
 ### Features

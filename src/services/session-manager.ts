@@ -2,6 +2,9 @@ export interface FocusSession {
 	name: string;
 	durationMinutes: number;
 	startTime: number;
+	status: "running" | "paused";
+	elapsed: number; // accumulated time in seconds
+	lastResumed: number; // timestamp when last resumed/started
 }
 
 export class SessionManager {
@@ -9,17 +12,57 @@ export class SessionManager {
 	private listeners: (() => void)[] = [];
 
 	startSession(name: string, durationMinutes: number) {
+		const now = Date.now();
 		this.activeSession = {
 			name,
 			durationMinutes,
-			startTime: Date.now(),
+			startTime: now,
+			status: "running",
+			elapsed: 0,
+			lastResumed: now,
 		};
 		this.notifyListeners();
+	}
+
+	pauseSession() {
+		if (this.activeSession && this.activeSession.status === "running") {
+			const now = Date.now();
+			const elapsedSinceLastResume = Math.floor((now - this.activeSession.lastResumed) / 1000);
+			this.activeSession.elapsed += elapsedSinceLastResume;
+			this.activeSession.status = "paused";
+			this.notifyListeners();
+		}
+	}
+
+	resumeSession() {
+		if (this.activeSession && this.activeSession.status === "paused") {
+			this.activeSession.status = "running";
+			this.activeSession.lastResumed = Date.now();
+			this.notifyListeners();
+		}
 	}
 
 	stopSession() {
 		this.activeSession = null;
 		this.notifyListeners();
+	}
+
+	resetSession() {
+		if (this.activeSession) {
+			const now = Date.now();
+			this.activeSession.elapsed = 0;
+			this.activeSession.lastResumed = now;
+			this.activeSession.startTime = now; // Technically a new start
+			this.activeSession.status = "running";
+			this.notifyListeners();
+		}
+	}
+
+	addTime(minutes: number) {
+		if (this.activeSession) {
+			this.activeSession.durationMinutes += minutes;
+			this.notifyListeners();
+		}
 	}
 
 	getActiveSession(): FocusSession | null {

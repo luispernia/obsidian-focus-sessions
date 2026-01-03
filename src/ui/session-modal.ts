@@ -21,7 +21,12 @@ export class SessionModal extends Modal {
 
 			// We could add a live timer here in the future
 			const total = session.durationMinutes;
-			const remainingSec = getRemainingTime(session.startTime, session.durationMinutes);
+			const remainingSec = getRemainingTime(
+				session.durationMinutes,
+				session.elapsed,
+				session.status,
+				session.lastResumed,
+			);
 			const remainingMin = Math.ceil(remainingSec / 60);
 
 			contentEl.createEl("p", { text: `Duration: ${total} minutes` });

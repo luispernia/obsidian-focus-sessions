@@ -11,9 +11,20 @@ export const formatTimerDisplay = (seconds: number): string => {
 	return formatDuration(seconds);
 };
 
-export const getRemainingTime = (startTime: number, durationMinutes: number): number => {
-	const now = Date.now();
-	const elapsedSec = Math.floor((now - startTime) / 1000);
+export const getRemainingTime = (
+	durationMinutes: number,
+	elapsed: number,
+	status: "running" | "paused",
+	lastResumed: number,
+): number => {
 	const totalSec = durationMinutes * 60;
-	return Math.max(0, totalSec - elapsedSec);
+	let currentElapsed = elapsed;
+
+	if (status === "running") {
+		const now = Date.now();
+		const additional = Math.floor((now - lastResumed) / 1000);
+		currentElapsed += additional;
+	}
+
+	return Math.max(0, totalSec - currentElapsed);
 };

@@ -13,37 +13,47 @@ export class SessionControls {
 		this.onUpdate = onUpdate;
 	}
 
+	update() {
+		if (!this.playBtn) return;
+		const session = this.sessionManager.getActiveSession();
+		const isRunning = session && session.status === "running";
+
+		this.playBtn.empty();
+		setIcon(this.playBtn, isRunning ? "pause" : "play");
+	}
+
 	render() {
 		const controls = this.container.createDiv({ cls: "fs-controls" });
 
+		// Reset Button
 		const resetBtn = controls.createDiv({ cls: "fs-control-btn fs-secondary" });
 		setIcon(resetBtn, "rotate-ccw");
-		// Optional: Implement reset functionality if needed
-		// resetBtn.onclick = () => ...
+		resetBtn.onclick = () => {
+			this.sessionManager.resetSession();
+		};
 
+		// Play/Pause Button
 		this.playBtn = controls.createDiv({ cls: "fs-control-btn fs-primary" });
 		this.playBtn.onclick = () => {
-			const isRunning = !!this.sessionManager.getActiveSession();
-			if (isRunning) {
-				this.sessionManager.stopSession();
+			const session = this.sessionManager.getActiveSession();
+			if (session) {
+				if (session.status === "running") {
+					this.sessionManager.pauseSession();
+				} else {
+					this.sessionManager.resumeSession();
+				}
 			} else {
 				this.sessionManager.startSession("Deep Work", 25);
 			}
-			// The listener in the main view will trigger re-renders,
-			// but we can also manually trigger update immediately if we wanted to
-			// assuming the session manager notifies synchronously or we wait.
 		};
 
-		const skipBtn = controls.createDiv({ cls: "fs-control-btn fs-secondary" });
-		setIcon(skipBtn, "chevron-right");
+		// Add Time Button (+5m) - replacing 'skip' for now as per plan
+		const addTimeBtn = controls.createDiv({ cls: "fs-control-btn fs-secondary" });
+		setIcon(addTimeBtn, "plus");
+		addTimeBtn.onclick = () => {
+			this.sessionManager.addTime(5);
+		};
 
 		this.update();
-	}
-
-	update() {
-		if (!this.playBtn) return;
-		const isRunning = !!this.sessionManager.getActiveSession();
-		this.playBtn.empty();
-		setIcon(this.playBtn, isRunning ? "pause" : "play");
 	}
 }

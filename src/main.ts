@@ -48,7 +48,12 @@ export default class FocusSessionsPlugin extends Plugin {
 	updateStatusBar() {
 		const session = this.sessionManager.getActiveSession();
 		if (session) {
-			const remainingSec = getRemainingTime(session.startTime, session.durationMinutes);
+			const remainingSec = getRemainingTime(
+				session.durationMinutes,
+				session.elapsed,
+				session.status,
+				session.lastResumed,
+			);
 			const timeString = formatDuration(remainingSec);
 
 			this.statusBarItemEl.setText(`${session.name} (${timeString})`);

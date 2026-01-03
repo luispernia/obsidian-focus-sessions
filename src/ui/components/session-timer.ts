@@ -57,10 +57,22 @@ export class SessionTimer {
 		let labelText = "DEEP WORK";
 
 		if (session) {
-			const remainingSec = getRemainingTime(session.startTime, session.durationMinutes);
+			const remainingSec = getRemainingTime(
+				session.durationMinutes,
+				session.elapsed,
+				session.status,
+				session.lastResumed,
+			);
 			displayTime = formatTimerDisplay(remainingSec);
 			labelText = session.name.toUpperCase();
-			this.timerContainer.classList.add("fs-timer-running");
+			if (session.status === "paused") {
+				labelText += " (PAUSED)";
+				this.timerContainer.classList.add("fs-timer-paused");
+				this.timerContainer.classList.remove("fs-timer-running");
+			} else {
+				this.timerContainer.classList.add("fs-timer-running");
+				this.timerContainer.classList.remove("fs-timer-paused");
+			}
 
 			if (this.circleProgress) {
 				const radius = 40;

@@ -244,29 +244,41 @@
 }
 
 /* src/styles/components/timer-controls.css */
+.fs-timer-idle .fs-timer-svg {
+  display: none;
+}
 .fs-timer-editable {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: 16px;
+  width: 100%;
+}
+.fs-input-container {
+  display: flex;
+  justify-content: center;
+  width: 100%;
 }
 .fs-timer-input {
-  background: transparent;
-  border: none;
+  background: var(--fs-card-bg, rgba(255, 255, 255, 0.05));
+  border: 1px solid var(--fs-border);
+  border-radius: 8px;
   color: var(--fs-text-primary);
-  font-size: 48px;
+  font-size: 24px;
   font-weight: 500;
   width: 120px;
   text-align: center;
-  padding: 0;
+  padding: 8px 16px;
   margin: 0;
   appearance: none;
   -moz-appearance: textfield;
+  transition: all 0.2s;
 }
 .fs-timer-input:focus {
   outline: none;
-  border-bottom: 2px solid var(--fs-accent);
+  border-color: var(--fs-accent);
+  box-shadow: 0 0 0 2px var(--fs-accent-transparent, rgba(var(--fs-accent-rgb), 0.2));
 }
 .fs-timer-input::-webkit-outer-spin-button,
 .fs-timer-input::-webkit-inner-spin-button {
@@ -279,14 +291,16 @@
   justify-content: center;
 }
 .fs-preset-btn {
-  background: transparent;
+  background: var(--fs-card-bg);
   border: 1px solid var(--fs-border);
   color: var(--fs-text-secondary);
-  border-radius: 4px;
-  font-size: 10px;
-  padding: 2px 6px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 8px 16px;
   cursor: pointer;
   transition: all 0.2s;
+  min-width: 60px;
 }
 .fs-preset-btn:hover {
   border-color: var(--fs-text-primary);

@@ -61,6 +61,8 @@ export class SessionTimer {
 		// Let's create the +/- controls if they don't exist and we are IDLE.
 
 		if (session) {
+			this.timerContainer.classList.remove("fs-timer-idle");
+
 			const remainingSec = getRemainingTime(
 				session.durationMinutes,
 				session.elapsed,
@@ -95,12 +97,13 @@ export class SessionTimer {
 			}
 		} else {
 			// IDLE STATE
+			this.timerContainer.classList.add("fs-timer-idle");
 			this.timerContainer.classList.remove("fs-timer-running");
 			this.timerContainer.classList.remove("fs-timer-paused");
 
 			const customDuration = this.sessionManager.getCustomDuration();
 			displayTime = `${customDuration}:00`;
-			labelText = "READY";
+			labelText = "";
 
 			if (this.circleProgress) {
 				this.circleProgress.removeAttribute("stroke-dasharray");
@@ -112,8 +115,11 @@ export class SessionTimer {
 				this.timeDisplayEl.addClass("fs-timer-editable");
 				this.timeDisplayEl.empty(); // Clear text to rebuild structure
 
+				// Container for Input and Presets
+				const inputContainer = this.timeDisplayEl.createDiv({ cls: "fs-input-container" });
+
 				// Duration Input
-				const input = this.timeDisplayEl.createEl("input", {
+				const input = inputContainer.createEl("input", {
 					type: "number",
 					cls: "fs-timer-input",
 				});
@@ -128,10 +134,7 @@ export class SessionTimer {
 					}
 				};
 
-				// Quick Add Presets Container (Below the time, but for now inside the display area or we might need to adjust structure)
-				// The implementation plan suggested "Implement Quick Add Buttons (+30s, +1m, +5m) that appear under the timer."
-				// `timeDisplayEl` is centered in the circle. Let's put them below the input.
-
+				// Quick Add Presets Container
 				const presetContainer = this.timeDisplayEl.createDiv({ cls: "fs-timer-presets" });
 
 				const presets = [
@@ -151,8 +154,6 @@ export class SessionTimer {
 				});
 			} else {
 				// Update just the input value if it's not currently focused?
-				// Actually, if user is typing, we shouldn't overwrite unless external change.
-				// For now, let's just make sure it matches if not focused.
 				const input = this.timeDisplayEl.querySelector("input");
 				if (input && document.activeElement !== input) {
 					input.value = this.sessionManager.getCustomDuration().toString();

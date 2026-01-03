@@ -1,3 +1,9 @@
+# [0.3.0](https://github.com/luispernia/obsidian-focus-sessions/compare/v0.2.0...v0.3.0) (2026-01-03)
+
+### Features
+
+- Implement session pause, resume, reset, and add time functionalities with corresponding UI updates and unit tests. ([35dd169](https://github.com/luispernia/obsidian-focus-sessions/commit/35dd169fcbf221f3b11c27f6f2df4c12f65f01cd))
+
 # [0.2.0](https://github.com/luispernia/obsidian-focus-sessions/compare/v0.1.0...v0.2.0) (2026-01-02)
 
 ### Features

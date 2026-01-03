@@ -1,6 +1,6 @@
 {
 	"name": "obsidian-focus-sessions",
-	"version": "0.2.0",
+	"version": "0.3.0",
 	"description": "A focus session manager for Obsidian.",
 	"main": "main.js",
 	"type": "module",

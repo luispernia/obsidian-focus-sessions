@@ -1,3 +1,10 @@
+# [0.6.0](https://github.com/lupecheart/obsidian-focus-sessions/compare/v0.5.0...v0.6.0) (2026-01-04)
+
+### Features
+
+- Implement session completion state with a new end modal and updated UI controls. ([6d4519c](https://github.com/lupecheart/obsidian-focus-sessions/commit/6d4519c183a83425819fa3cb8e271fee29d45b06))
+- Introduce audio notifications for session events and enable automatic session completion. ([fa323ae](https://github.com/lupecheart/obsidian-focus-sessions/commit/fa323ae4dadd2b477c1e29b7a99ec52b878a3a87))
+
 # [0.5.0](https://github.com/luispernia/obsidian-focus-sessions/compare/v0.4.0...v0.5.0) (2026-01-03)
 
 ### Features

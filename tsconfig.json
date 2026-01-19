@@ -9,15 +9,17 @@
 		"noImplicitAny": true,
 		"noImplicitThis": true,
 		"noImplicitReturns": true,
-		"moduleResolution": "node",
+		"skipLibCheck": true,
+		"moduleResolution": "bundler",
 		"importHelpers": true,
 		"noUncheckedIndexedAccess": true,
 		"isolatedModules": true,
+		"verbatimModuleSyntax": true,
 		"strictNullChecks": true,
 		"strictBindCallApply": true,
 		"allowSyntheticDefaultImports": true,
 		"useUnknownInCatchVariables": true,
-		"lib": ["ES7", "DOM"],
+		"lib": ["ESNext", "DOM"],
 		"paths": {
 			"@/*": ["*"]
 		}

@@ -4,8 +4,9 @@ import { formatDuration, getRemainingTime } from "@/utils/time-utils";
 import { FOCUS_SESSION_VIEW_TYPE, FocusSessionView } from "@/ui/focus-session-view";
 import { SessionModal } from "@/ui/session-modal";
 import { SessionEndModal } from "@/ui/session-end-modal";
+import { SvelteModal } from "@/ui/SvelteModal";
 
-import { FocusSessionSettings, DEFAULT_SETTINGS } from "@/settings";
+import { DEFAULT_SETTINGS, type FocusSessionSettings } from "@/settings";
 import { FocusSessionSettingTab } from "@/ui/settings-tab";
 import { AudioService } from "@/services/audio-service";
 
@@ -30,6 +31,14 @@ export default class FocusSessionsPlugin extends Plugin {
 		// Ribbon Icon
 		this.addRibbonIcon("clock", "Open focus sessions", () => {
 			void this.activateView();
+		});
+
+		this.addCommand({
+			id: "open-test-svelte-modal",
+			name: "Open test svelte modal",
+			callback: () => {
+				new SvelteModal(this.app).open();
+			},
 		});
 
 		// Status Bar

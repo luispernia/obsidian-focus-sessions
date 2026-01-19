@@ -7,7 +7,7 @@ export interface FocusSession {
 	lastResumed: number; // timestamp when last resumed/started
 }
 
-import { FocusSessionSettings } from "@/settings";
+import type { FocusSessionSettings } from "@/settings";
 import { AudioService } from "@/services/audio-service";
 import { getRemainingTime } from "@/utils/time-utils";
 

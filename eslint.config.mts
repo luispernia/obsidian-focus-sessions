@@ -17,7 +17,8 @@ export default tseslint.config(
 					allowDefaultProject: [
 						'eslint.config.js',
 						'manifest.json',
-						'vitest.config.ts'
+						'vitest.config.ts',
+						'svelte.config.js'
 					]
 				},
 				tsconfigRootDir: import.meta.dirname,

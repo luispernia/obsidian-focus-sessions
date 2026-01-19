@@ -25,18 +25,18 @@ describe("SessionManager", () => {
 	});
 
 	it("should start a session correctly", () => {
-		sessionManager.startSession("Test Session", 25);
+		sessionManager.startSession("Test Session", 25 * 60);
 		const session = sessionManager.getActiveSession();
 
 		expect(session).not.toBeNull();
 		expect(session?.name).toBe("Test Session");
-		expect(session?.durationMinutes).toBe(25);
+		expect(session?.duration).toBe(25 * 60);
 		expect(session?.status).toBe("running");
 		expect(session?.elapsed).toBe(0);
 	});
 
 	it("should pause a running session", () => {
-		sessionManager.startSession("Test Session", 25);
+		sessionManager.startSession("Test Session", 25 * 60);
 
 		// Advance time by 60 seconds
 		vi.advanceTimersByTime(60000);
@@ -50,7 +50,7 @@ describe("SessionManager", () => {
 	});
 
 	it("should resume a paused session", () => {
-		sessionManager.startSession("Test Session", 25);
+		sessionManager.startSession("Test Session", 25 * 60);
 		sessionManager.pauseSession();
 
 		vi.advanceTimersByTime(1000); // Wait a bit while paused (should not count to elapsed of session logic if purely based on lastResumed diff, but elapsed is frozen on pause)
@@ -72,7 +72,7 @@ describe("SessionManager", () => {
 	});
 
 	it("should reset a session", () => {
-		sessionManager.startSession("Test Session", 25);
+		sessionManager.startSession("Test Session", 25 * 60);
 		vi.advanceTimersByTime(60000);
 		sessionManager.pauseSession(); // Pause adds to elapsed
 
@@ -86,17 +86,17 @@ describe("SessionManager", () => {
 	});
 
 	it("should add time to a session", () => {
-		sessionManager.startSession("Test Session", 25);
+		sessionManager.startSession("Test Session", 25 * 60);
 		sessionManager.addTime(5);
 		const session = sessionManager.getActiveSession();
-		expect(session?.durationMinutes).toBe(30);
+		expect(session?.duration).toBe(30 * 60);
 	});
 
 	it("should notify listeners on change", () => {
 		const listener = vi.fn();
 		sessionManager.onChange(listener);
 
-		sessionManager.startSession("Test Session", 25);
+		sessionManager.startSession("Test Session", 25 * 60);
 		expect(listener).toHaveBeenCalledTimes(1);
 
 		sessionManager.pauseSession();
@@ -120,23 +120,23 @@ describe("SessionManager", () => {
 		sessionManager.startSession("Default Focus");
 		const session = sessionManager.getActiveSession();
 
-		expect(session?.durationMinutes).toBe(40);
+		expect(session?.duration).toBe(40 * 60);
 	});
 
 	it("should start a Short Break with configured duration if name is 'Short Break'", () => {
 		sessionManager.startSession("Short Break");
 		const session = sessionManager.getActiveSession();
-		expect(session?.durationMinutes).toBe(DEFAULT_SETTINGS.shortBreakDuration);
+		expect(session?.duration).toBe(DEFAULT_SETTINGS.shortBreakDuration * 60);
 	});
 
 	it("should start a Long Break with configured duration if name is 'Long Break'", () => {
 		sessionManager.startSession("Long Break");
 		const session = sessionManager.getActiveSession();
-		expect(session?.durationMinutes).toBe(DEFAULT_SETTINGS.longBreakDuration);
+		expect(session?.duration).toBe(DEFAULT_SETTINGS.longBreakDuration * 60);
 	});
 
 	it("should complete session when time runs out", () => {
-		sessionManager.startSession("Test", 1); // 1 minute
+		sessionManager.startSession("Test", 60); // 1 minute = 60 seconds
 		vi.advanceTimersByTime(60000 + 1000); // 1m + 1s to be safe
 		sessionManager.tick();
 

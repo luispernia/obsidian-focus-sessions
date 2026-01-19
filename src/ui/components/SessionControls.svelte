@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { session, plugin } from "../stores";
+	import { session, plugin, draftName, draftMinutes, draftSeconds } from "../stores";
 	import { setIcon } from "obsidian";
 
 	function icon(node: HTMLElement, iconName: string) {
@@ -14,6 +14,11 @@
 
 	function startSession(name: string) {
 		$plugin?.sessionManager.startSession(name);
+	}
+
+	function startCustomSession() {
+		const duration = $draftMinutes * 60 + $draftSeconds;
+		$plugin?.sessionManager.startSession($draftName, duration);
 	}
 
 	function stopSession() {
@@ -59,23 +64,19 @@
 		{:else}
 			<!-- Idle State -->
 			<button
-				class="fs-control-btn fs-secondary"
+				class="fs-control-btn fs-secondary fs-small"
 				aria-label="Short Break"
 				on:click={() => startSession("Short Break")}
 			>
 				<div use:icon={"coffee"}></div>
 			</button>
 
-			<button
-				class="fs-control-btn fs-primary"
-				aria-label="Start Focus"
-				on:click={() => startSession("Deep Work")}
-			>
+			<button class="fs-control-btn fs-primary fs-large" aria-label="Start Session" on:click={startCustomSession}>
 				<div use:icon={"play"}></div>
 			</button>
 
 			<button
-				class="fs-control-btn fs-secondary"
+				class="fs-control-btn fs-secondary fs-small"
 				aria-label="Long Break"
 				on:click={() => startSession("Long Break")}
 			>
@@ -128,8 +129,20 @@
 		padding: 0;
 	}
 
+	.fs-control-btn.fs-large {
+		width: 56px;
+		height: 56px;
+	}
+
+	.fs-control-btn.fs-small {
+		width: 32px;
+		height: 32px;
+		opacity: 0.8;
+	}
+
 	.fs-control-btn:hover {
 		background-color: var(--interactive-hover);
+		opacity: 1;
 	}
 
 	.fs-control-btn.fs-primary {

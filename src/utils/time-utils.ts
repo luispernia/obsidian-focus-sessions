@@ -12,14 +12,15 @@ export const formatTimerDisplay = (seconds: number): string => {
 };
 
 export const getRemainingTime = (
-	durationMinutes: number,
+	durationSeconds: number,
 	elapsed: number,
 	status: "running" | "paused" | "completed",
 	lastResumed: number,
 ): number => {
 	if (status === "completed") return 0;
 
-	const totalSec = durationMinutes * 60;
+	// durationSeconds is already in seconds
+	const totalSec = durationSeconds;
 	let currentElapsed = elapsed;
 
 	if (status === "running") {

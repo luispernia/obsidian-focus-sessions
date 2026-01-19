@@ -91,7 +91,7 @@ export default class FocusSessionsPlugin extends Plugin {
 		const session = this.sessionManager.getActiveSession();
 		if (session) {
 			const remainingSec = getRemainingTime(
-				session.durationMinutes,
+				session.duration,
 				session.elapsed,
 				session.status,
 				session.lastResumed,

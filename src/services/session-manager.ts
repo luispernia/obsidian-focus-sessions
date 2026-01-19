@@ -1,6 +1,6 @@
 export interface FocusSession {
 	name: string;
-	durationMinutes: number;
+	duration: number; // duration in seconds
 	startTime: number;
 	status: "running" | "paused" | "completed";
 	elapsed: number; // accumulated time in seconds
@@ -36,24 +36,24 @@ export class SessionManager {
 		return this.customDuration;
 	}
 
-	startSession(name: string, durationMinutes?: number) {
+	startSession(name: string, durationSeconds?: number) {
 		const now = Date.now();
-		let duration = durationMinutes;
+		let duration = durationSeconds;
 
-		if (!duration) {
+		if (duration === undefined) {
 			// Determine default duration based on name or default to focus duration
 			if (name === "Short Break") {
-				duration = this.settings.shortBreakDuration;
+				duration = this.settings.shortBreakDuration * 60;
 			} else if (name === "Long Break") {
-				duration = this.settings.longBreakDuration;
+				duration = this.settings.longBreakDuration * 60;
 			} else {
-				duration = this.customDuration;
+				duration = this.customDuration * 60;
 			}
 		}
 
 		this.activeSession = {
 			name,
-			durationMinutes: duration,
+			duration: duration,
 			startTime: now,
 			status: "running",
 			elapsed: 0,
@@ -103,7 +103,7 @@ export class SessionManager {
 
 	addTime(minutes: number) {
 		if (this.activeSession) {
-			this.activeSession.durationMinutes += minutes;
+			this.activeSession.duration += minutes * 60;
 
 			// If adding time to a completed session, resume it
 			if (this.activeSession.status === "completed") {
@@ -119,7 +119,7 @@ export class SessionManager {
 	tick() {
 		if (this.activeSession && this.activeSession.status === "running") {
 			const remaining = getRemainingTime(
-				this.activeSession.durationMinutes,
+				this.activeSession.duration,
 				this.activeSession.elapsed,
 				this.activeSession.status,
 				this.activeSession.lastResumed,

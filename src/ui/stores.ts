@@ -5,6 +5,10 @@ import { getRemainingTime } from "@/utils/time-utils";
 
 export const plugin = writable<FocusSessionsPlugin>();
 
+export const draftName = writable("Focus Session");
+export const draftMinutes = writable(25);
+export const draftSeconds = writable(0);
+
 export const session = readable<FocusSession | null>(null, (set) => {
 	let sessionManager: SessionManager;
 
@@ -42,7 +46,7 @@ export const timeRemaining = derived(
 		const update = () => {
 			if ($session.status === "running") {
 				const remaining = getRemainingTime(
-					$session.durationMinutes,
+					$session.duration,
 					$session.elapsed,
 					$session.status,
 					$session.lastResumed,
@@ -50,7 +54,7 @@ export const timeRemaining = derived(
 				set(remaining);
 			} else if ($session.status === "paused") {
 				const remaining = getRemainingTime(
-					$session.durationMinutes,
+					$session.duration,
 					$session.elapsed,
 					$session.status,
 					$session.lastResumed,

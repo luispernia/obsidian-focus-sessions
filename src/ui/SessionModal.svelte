@@ -14,7 +14,7 @@
 	{#if $session}
 		<h2>{$session.name}</h2>
 		<div class="stats">
-			<p>Duration: {$session.durationMinutes} minutes</p>
+			<p>Duration: {formatDuration($session.duration)}</p>
 			<p>Time remaining: {formatDuration($timeRemaining)}</p>
 		</div>
 		<button class="mod-warning" onclick={stop}>Stop session</button>

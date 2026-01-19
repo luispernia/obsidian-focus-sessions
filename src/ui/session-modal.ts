@@ -1,52 +1,28 @@
-import { App, Modal, ButtonComponent } from "obsidian";
-import { SessionManager } from "@/services/session-manager";
-import { getRemainingTime } from "@/utils/time-utils";
+import { App, Modal } from "obsidian";
+import { mount, unmount } from "svelte";
+import SessionModalComponent from "./SessionModal.svelte";
 
 export class SessionModal extends Modal {
-	private sessionManager: SessionManager;
+	component: ReturnType<typeof mount> | null = null;
 
-	constructor(app: App, sessionManager: SessionManager) {
+	constructor(app: App) {
 		super(app);
-		this.sessionManager = sessionManager;
 	}
 
 	onOpen() {
-		const { contentEl } = this;
-		contentEl.empty();
-
-		const session = this.sessionManager.getActiveSession();
-
-		if (session) {
-			contentEl.createEl("h2", { text: session.name });
-
-			// We could add a live timer here in the future
-			const total = session.durationMinutes;
-			const remainingSec = getRemainingTime(
-				session.durationMinutes,
-				session.elapsed,
-				session.status,
-				session.lastResumed,
-			);
-			const remainingMin = Math.ceil(remainingSec / 60);
-
-			contentEl.createEl("p", { text: `Duration: ${total} minutes` });
-			contentEl.createEl("p", { text: `Time remaining: ~${remainingMin} minutes` });
-
-			new ButtonComponent(contentEl)
-				.setButtonText("Stop session")
-				.setWarning()
-				.onClick(() => {
-					this.sessionManager.stopSession();
-					this.close();
-				});
-		} else {
-			contentEl.createEl("h2", { text: "No active session" });
-			contentEl.createEl("p", { text: "Go to the side panel to start a new session." });
-		}
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+		this.component = mount(SessionModalComponent as any, {
+			target: this.contentEl,
+			props: {
+				close: () => this.close(),
+			},
+		});
 	}
 
 	onClose() {
-		const { contentEl } = this;
-		contentEl.empty();
+		if (this.component) {
+			void unmount(this.component);
+		}
+		this.contentEl.empty();
 	}
 }

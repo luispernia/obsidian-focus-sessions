@@ -10,6 +10,8 @@ import { DEFAULT_SETTINGS, type FocusSessionSettings } from "@/settings";
 import { FocusSessionSettingTab } from "@/ui/settings-tab";
 import { AudioService } from "@/services/audio-service";
 
+import { plugin } from "@/ui/stores";
+
 export default class FocusSessionsPlugin extends Plugin {
 	sessionManager: SessionManager;
 	statusBarItemEl: HTMLElement;
@@ -18,6 +20,7 @@ export default class FocusSessionsPlugin extends Plugin {
 
 	async onload() {
 		await this.loadSettings();
+		plugin.set(this);
 
 		this.audioService = new AudioService(this.settings.enableSound);
 		this.sessionManager = new SessionManager(this.settings, this.audioService);
@@ -66,7 +69,7 @@ export default class FocusSessionsPlugin extends Plugin {
 		// Click on status bar to open modal
 		this.statusBarItemEl.addClass("mod-clickable");
 		this.statusBarItemEl.onClickEvent(() => {
-			new SessionModal(this.app, this.sessionManager).open();
+			new SessionModal(this.app).open();
 		});
 
 		this.addSettingTab(new FocusSessionSettingTab(this.app, this));

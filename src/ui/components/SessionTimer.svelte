@@ -7,6 +7,29 @@
 	function toggleNameInput() {
 		showNameInput = !showNameInput;
 	}
+
+	function formatDisplay(val: number): string {
+		return val.toString().padStart(2, "0");
+	}
+
+	function handleMinutesInput(e: Event & { currentTarget: HTMLInputElement }) {
+		const input = e.currentTarget.value.replace(/[^0-9]/g, "");
+		let val = parseInt(input, 10);
+		if (isNaN(val)) val = 0;
+		if (val > 99) val = 99;
+		$draftMinutes = val;
+		// Force update input value to ensure formatting
+		e.currentTarget.value = formatDisplay(val);
+	}
+
+	function handleSecondsInput(e: Event & { currentTarget: HTMLInputElement }) {
+		const input = e.currentTarget.value.replace(/[^0-9]/g, "");
+		let val = parseInt(input, 10);
+		if (isNaN(val)) val = 0;
+		if (val > 59) val = 59;
+		$draftSeconds = val;
+		e.currentTarget.value = formatDisplay(val);
+	}
 </script>
 
 <div class="session-timer">
@@ -43,9 +66,22 @@
 			{/if}
 
 			<div class="fs-timer-inputs">
-				<input type="number" min="0" bind:value={$draftMinutes} class="fs-timer-input" />
+				<input
+					type="text"
+					inputmode="numeric"
+					value={formatDisplay($draftMinutes)}
+					on:input={handleMinutesInput}
+					class="fs-timer-input"
+				/>
 				<span class="fs-timer-separator">:</span>
-				<input type="number" min="0" max="59" bind:value={$draftSeconds} class="fs-timer-input" />
+				<input
+					type="text"
+					inputmode="numeric"
+					value={formatDisplay($draftSeconds)}
+					on:input={handleSecondsInput}
+					on:focus={(e) => e.currentTarget.select()}
+					class="fs-timer-input"
+				/>
 			</div>
 		</div>
 	{/if}

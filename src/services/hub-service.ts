@@ -13,6 +13,7 @@ interface HubApi {
 		getActiveSessionId(): string | null;
 		getActiveSessionContext(): Promise<any>;
 		getSessionHistory(days?: number): Promise<any[]>;
+		getAllSessions(): Promise<any[]>;
 		getSessionContext(sessionId: string): Promise<any>;
 	};
 }
@@ -106,6 +107,12 @@ export class HubService {
 
 		// Let's return the slice.
 		return sessions.slice(0, limit);
+	}
+
+	public async getAllSessions(): Promise<any[]> {
+		const api = this.getApi();
+		if (!api) return [];
+		return await api.sessions.getAllSessions();
 	}
 
 	public async getSessionContext(sessionId: string): Promise<any> {

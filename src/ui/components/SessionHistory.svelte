@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { plugin } from "../stores";
 	import { SessionDetailsModal } from "../session-details-modal";
+	import { SessionHistoryModal } from "../session-history-modal";
 	import { setIcon } from "obsidian";
 	import { onMount } from "svelte";
 
@@ -55,7 +56,13 @@
 	}
 
 	function openDetails(session: any) {
-		new SessionDetailsModal($plugin!.app, session).open();
+		new SessionDetailsModal($plugin!.app, session, sessionManager).open();
+	}
+
+	function openAllSessions() {
+		if (sessionManager) {
+			new SessionHistoryModal($plugin!.app, sessionManager).open();
+		}
 	}
 
 	function formatTime(ts: number) {
@@ -100,6 +107,10 @@
 		{:else}
 			<div class="fs-history-empty">No recent sessions found</div>
 		{/each}
+	</div>
+
+	<div class="fs-history-footer">
+		<button class="fs-btn-link" on:click={openAllSessions}>See All Sessions</button>
 	</div>
 </div>
 
@@ -172,5 +183,27 @@
 		color: var(--text-muted);
 		font-size: 13px;
 		padding: 16px;
+	}
+
+	.fs-history-footer {
+		margin-top: 12px;
+		text-align: center;
+	}
+
+	.fs-btn-link {
+		background: none;
+		border: none;
+		color: var(--text-muted);
+		font-size: 12px;
+		padding: 4px 8px;
+		cursor: pointer;
+		text-decoration: underline;
+		opacity: 0.8;
+		transition: opacity 0.2s;
+	}
+
+	.fs-btn-link:hover {
+		opacity: 1;
+		color: var(--text-normal);
 	}
 </style>

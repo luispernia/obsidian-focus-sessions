@@ -217,6 +217,16 @@ export class SessionManager {
 		return this.hubService.getRecentSessions(limit);
 	}
 
+	async getAllSessions(): Promise<any[]> {
+		if (!this.hubService.isAvailable()) return [];
+		return this.hubService.getAllSessions();
+	}
+
+	async getSessionContext(sessionId: string): Promise<any> {
+		if (!this.hubService.isAvailable()) return null;
+		return this.hubService.getSessionContext(sessionId);
+	}
+
 	onChange(callback: () => void) {
 		this.listeners.push(callback);
 	}

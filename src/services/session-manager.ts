@@ -5,33 +5,29 @@ export interface FocusSession {
 	status: "running" | "paused" | "completed";
 	elapsed: number; // accumulated time in seconds
 	lastResumed: number; // timestamp when last resumed/started
+	isOvertime?: boolean;
 }
 
 import type { FocusSessionSettings } from "@/settings";
 import { AudioService } from "@/services/audio-service";
 import { getRemainingTime } from "@/utils/time-utils";
 import type { HubService } from "./hub-service";
-
-export interface FocusSession {
-	name: string;
-	duration: number; // duration in seconds
-	startTime: number;
-	status: "running" | "paused" | "completed";
-	elapsed: number; // accumulated time in seconds
-	lastResumed: number; // timestamp when last resumed/started
-}
+import { App } from "obsidian";
 
 export class SessionManager {
 	private activeSession: FocusSession | null = null;
 	private listeners: (() => void)[] = [];
-	private completionListeners: ((session: FocusSession) => void)[] = [];
+	private completionListeners: ((session: FocusSession, source?: string) => void)[] = [];
 	private settings: FocusSessionSettings;
 	private audioService: AudioService;
 	private hubService: HubService;
 
 	private customDuration: number;
 
-	constructor(settings: FocusSessionSettings, audioService: AudioService, hubService: HubService) {
+	private app: App;
+
+	constructor(app: App, settings: FocusSessionSettings, audioService: AudioService, hubService: HubService) {
+		this.app = app;
 		this.settings = settings;
 		this.audioService = audioService;
 		this.hubService = hubService;
@@ -39,16 +35,23 @@ export class SessionManager {
 		this.customDuration = settings.focusDuration;
 
 		// Attempt to restore session from Hub
-		void this.restoreSession();
+		this.app.workspace.onLayoutReady(() => {
+			void this.restoreSession();
+		});
 	}
 
 	private async restoreSession() {
 		// Retry a few times if Hub is not available immediately (race condition on load)
-		for (let i = 0; i < 10; i++) {
+		// Even with onLayoutReady, other plugins might initialize async.
+		for (let i = 0; i < 20; i++) {
 			if (this.hubService.isAvailable()) {
 				const hubSession = await this.hubService.asyncRecoverActiveSession();
 				if (hubSession) {
-					// Assume continuous running for now as Hub doesn't track pauses
+					// Check if session is already completed in Hub (unlikely if activeSession is set)
+					// Calculate elapsed based on startTime
+					// Calculate elapsed based on startTime
+					// If Hub session start time is in the future (drift?), handle gracefully? No, assume correct.
+
 					this.activeSession = {
 						name: hubSession.name || "Focus Session",
 						duration: hubSession.duration * 60,
@@ -57,7 +60,19 @@ export class SessionManager {
 						elapsed: 0,
 						lastResumed: hubSession.startTime,
 					};
-					// console.log("[FocusSessions] Restored session from Hub:", this.activeSession);
+					// Check for immediate completion/overtime on restore
+					// tick() will handle this on next interval, but we can set initial state
+					const remaining = getRemainingTime(
+						this.activeSession.duration,
+						0, // elapsed is 0 relative to lastResumed=startTime
+						"running",
+						this.activeSession.startTime,
+					);
+
+					if (remaining <= 0) {
+						this.activeSession.isOvertime = true;
+					}
+
 					this.notifyListeners();
 				}
 				return;
@@ -130,16 +145,20 @@ export class SessionManager {
 		}
 	}
 
-	async stopSession() {
+	async stopSession(source?: string) {
 		this.audioService.stopAlarm();
-		this.activeSession = null;
+		if (this.activeSession) {
+			this.activeSession.status = "completed";
 
-		// Sync with Hub
-		if (this.hubService.isAvailable()) {
-			await this.hubService.endSession();
+			// Sync with Hub
+			if (this.hubService.isAvailable()) {
+				await this.hubService.endSession();
+			}
+
+			this.notifyCompletion(this.activeSession, source);
+			this.activeSession = null;
+			this.notifyListeners();
 		}
-
-		this.notifyListeners();
 	}
 
 	resetSession() {
@@ -161,8 +180,8 @@ export class SessionManager {
 		if (this.activeSession) {
 			this.activeSession.duration += minutes * 60;
 
-			// If adding time to a completed session, resume it
-			if (this.activeSession.status === "completed") {
+			// If adding time to a completed or paused session, resume it
+			if (this.activeSession.status === "completed" || this.activeSession.status === "paused") {
 				this.audioService.stopAlarm();
 				this.activeSession.status = "running";
 				this.activeSession.lastResumed = Date.now();
@@ -181,25 +200,10 @@ export class SessionManager {
 				this.activeSession.lastResumed,
 			);
 
-			if (remaining <= 0) {
-				void this.completeSession();
-			}
-		}
-	}
-
-	private async completeSession() {
-		if (this.activeSession) {
-			// Capture session reference before nulling it (though we just change status here)
-			const session = this.activeSession;
-
-			session.status = "completed";
-			this.audioService.playComplete(true); // Loop: true
-			this.notifyListeners();
-			this.notifyCompletion(session);
-
-			// Sync with Hub - End the session
-			if (this.hubService.isAvailable()) {
-				await this.hubService.endSession();
+			if (remaining <= 0 && !this.activeSession.isOvertime) {
+				this.activeSession.isOvertime = true;
+				this.audioService.playComplete(true); // Loop: true
+				this.notifyListeners();
 			}
 		}
 	}
@@ -217,7 +221,7 @@ export class SessionManager {
 		this.listeners.push(callback);
 	}
 
-	onSessionComplete(callback: (session: FocusSession) => void) {
+	onSessionComplete(callback: (session: FocusSession, source?: string) => void) {
 		this.completionListeners.push(callback);
 	}
 
@@ -229,7 +233,7 @@ export class SessionManager {
 		this.listeners.forEach((callback) => callback());
 	}
 
-	private notifyCompletion(session: FocusSession) {
-		this.completionListeners.forEach((callback) => callback(session));
+	private notifyCompletion(session: FocusSession, source?: string) {
+		this.completionListeners.forEach((callback) => callback(session, source));
 	}
 }

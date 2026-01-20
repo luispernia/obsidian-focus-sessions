@@ -11,11 +11,14 @@
 
 <div class="session-timer">
 	{#if $session}
-		<div class="time-display">
+		<div class="time-display" class:is-overtime={$timeRemaining < 0}>
 			{formatDuration($timeRemaining)}
 		</div>
 		<div class="progress-bar-container">
-			<div class="progress-bar" style="width: {($session.elapsed / $session.duration) * 100}%"></div>
+			<div
+				class="progress-bar"
+				style="width: {Math.min(100, ($session.elapsed / $session.duration) * 100)}%"
+			></div>
 		</div>
 	{:else}
 		<div class="custom-timer-container">

@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { session, plugin, draftName, draftMinutes, draftSeconds } from "../stores";
+	import { SessionEndModal } from "../session-end-modal";
 	import { setIcon } from "obsidian";
 
 	function icon(node: HTMLElement, iconName: string) {
@@ -22,7 +23,10 @@
 	}
 
 	function stopSession() {
-		$plugin?.sessionManager.stopSession();
+		// $plugin?.sessionManager.stopSession();
+		// Pause first so timer stops ticking visibly while they decide
+		$plugin?.sessionManager.pauseSession();
+		new SessionEndModal($plugin!.app, $plugin!.sessionManager).open();
 	}
 
 	function pauseSession() {

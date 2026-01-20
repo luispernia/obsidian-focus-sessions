@@ -62,8 +62,13 @@
 		return new Date(ts).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 	}
 
-	function formatDuration(minutes: number) {
-		return `${minutes}m`;
+	function formatDuration(session: any) {
+		if (session.end && session.start) {
+			const diffMs = session.end - session.start;
+			const minutes = Math.round(diffMs / 1000 / 60);
+			return `${minutes}m`;
+		}
+		return `${session.config?.durationMinutes || "?"}m`;
 	}
 </script>
 
@@ -72,8 +77,13 @@
 
 	<div class="fs-history-list">
 		{#each history as session}
-			<!-- svelte-ignore a11y-click-events-have-key-events -->
-			<div class="fs-history-item" on:click={() => openDetails(session)}>
+			<div
+				class="fs-history-item"
+				role="button"
+				tabindex="0"
+				on:click={() => openDetails(session)}
+				on:keydown={(e) => (e.key === "Enter" || e.key === " ") && openDetails(session)}
+			>
 				<div class="fs-history-icon">
 					<div
 						class="fs-status-dot-sm"
@@ -83,7 +93,7 @@
 				<div class="fs-history-info">
 					<div class="fs-history-name">{session.config?.name || "Untitled Session"}</div>
 					<div class="fs-history-meta">
-						{formatTime(session.start)} • {session.config?.durationMinutes || "?"}m
+						{formatTime(session.start)} • {formatDuration(session)}
 					</div>
 				</div>
 			</div>

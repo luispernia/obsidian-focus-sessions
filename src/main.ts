@@ -26,7 +26,7 @@ export default class FocusSessionsPlugin extends Plugin {
 
 		this.hubService = new HubService(this.app);
 		this.audioService = new AudioService(this.settings.enableSound);
-		this.sessionManager = new SessionManager(this.settings, this.audioService, this.hubService);
+		this.sessionManager = new SessionManager(this.app, this.settings, this.audioService, this.hubService);
 
 		// Register the View
 		this.registerView(
@@ -57,8 +57,10 @@ export default class FocusSessionsPlugin extends Plugin {
 		});
 
 		// Modal on session completion
-		this.sessionManager.onSessionComplete(() => {
-			new SessionEndModal(this.app, this.sessionManager).open();
+		this.sessionManager.onSessionComplete((session, source) => {
+			if (source !== "modal") {
+				new SessionEndModal(this.app, this.sessionManager).open();
+			}
 		});
 
 		// Periodic update for timer in status bar and session logic

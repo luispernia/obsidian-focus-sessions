@@ -1,13 +1,12 @@
 export const formatDuration = (seconds: number): string => {
-	const m = Math.floor(seconds / 60);
-	const s = seconds % 60;
-	return `${m}:${s.toString().padStart(2, "0")}`;
+	const sign = seconds < 0 ? "+" : "";
+	const absSeconds = Math.abs(seconds);
+	const m = Math.floor(absSeconds / 60);
+	const s = absSeconds % 60;
+	return `${sign}${m}:${s.toString().padStart(2, "0")}`;
 };
 
 export const formatTimerDisplay = (seconds: number): string => {
-	if (seconds >= 60) {
-		return Math.ceil(seconds / 60).toString();
-	}
 	return formatDuration(seconds);
 };
 
@@ -29,5 +28,5 @@ export const getRemainingTime = (
 		currentElapsed += additional;
 	}
 
-	return Math.max(0, totalSec - currentElapsed);
+	return totalSec - currentElapsed;
 };

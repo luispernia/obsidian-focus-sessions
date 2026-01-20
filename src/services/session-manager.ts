@@ -116,7 +116,7 @@ export class SessionManager {
 
 		// Sync with Hub
 		if (this.hubService.isAvailable()) {
-			await this.hubService.startSession(name, Math.ceil(duration / 60));
+			await this.hubService.startSession(name, Math.ceil(duration / 60), duration);
 		}
 
 		this.audioService.playStart();

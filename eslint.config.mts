@@ -45,5 +45,11 @@ export default tseslint.config(
 			"@typescript-eslint/no-unsafe-call": "off",
 			"@typescript-eslint/no-unsafe-return": "off"
 		}
+	},
+	{
+		files: ["vitest.config.ts"],
+		rules: {
+			"import/no-nodejs-modules": "off"
+		}
 	}
 );

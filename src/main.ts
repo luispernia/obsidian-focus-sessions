@@ -9,6 +9,7 @@ import { SvelteModal } from "@/ui/SvelteModal";
 import { DEFAULT_SETTINGS, type FocusSessionSettings } from "@/settings";
 import { FocusSessionSettingTab } from "@/ui/settings-tab";
 import { AudioService } from "@/services/audio-service";
+import { HubService } from "@/services/hub-service";
 
 import { plugin } from "@/ui/stores";
 
@@ -17,13 +18,15 @@ export default class FocusSessionsPlugin extends Plugin {
 	statusBarItemEl: HTMLElement;
 	settings: FocusSessionSettings;
 	audioService: AudioService;
+	hubService: HubService;
 
 	async onload() {
 		await this.loadSettings();
 		plugin.set(this);
 
+		this.hubService = new HubService(this.app);
 		this.audioService = new AudioService(this.settings.enableSound);
-		this.sessionManager = new SessionManager(this.settings, this.audioService);
+		this.sessionManager = new SessionManager(this.settings, this.audioService, this.hubService);
 
 		// Register the View
 		this.registerView(

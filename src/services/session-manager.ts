@@ -10,6 +10,16 @@ export interface FocusSession {
 import type { FocusSessionSettings } from "@/settings";
 import { AudioService } from "@/services/audio-service";
 import { getRemainingTime } from "@/utils/time-utils";
+import type { HubService } from "./hub-service";
+
+export interface FocusSession {
+	name: string;
+	duration: number; // duration in seconds
+	startTime: number;
+	status: "running" | "paused" | "completed";
+	elapsed: number; // accumulated time in seconds
+	lastResumed: number; // timestamp when last resumed/started
+}
 
 export class SessionManager {
 	private activeSession: FocusSession | null = null;
@@ -17,14 +27,43 @@ export class SessionManager {
 	private completionListeners: ((session: FocusSession) => void)[] = [];
 	private settings: FocusSessionSettings;
 	private audioService: AudioService;
+	private hubService: HubService;
 
 	private customDuration: number;
 
-	constructor(settings: FocusSessionSettings, audioService: AudioService) {
+	constructor(settings: FocusSessionSettings, audioService: AudioService, hubService: HubService) {
 		this.settings = settings;
 		this.audioService = audioService;
+		this.hubService = hubService;
 		this.audioService.setEnabled(settings.enableSound !== false); // Default true if undefined
 		this.customDuration = settings.focusDuration;
+
+		// Attempt to restore session from Hub
+		void this.restoreSession();
+	}
+
+	private async restoreSession() {
+		// Retry a few times if Hub is not available immediately (race condition on load)
+		for (let i = 0; i < 10; i++) {
+			if (this.hubService.isAvailable()) {
+				const hubSession = await this.hubService.asyncRecoverActiveSession();
+				if (hubSession) {
+					// Assume continuous running for now as Hub doesn't track pauses
+					this.activeSession = {
+						name: hubSession.name || "Focus Session",
+						duration: hubSession.duration * 60,
+						startTime: hubSession.startTime,
+						status: "running",
+						elapsed: 0,
+						lastResumed: hubSession.startTime,
+					};
+					// console.log("[FocusSessions] Restored session from Hub:", this.activeSession);
+					this.notifyListeners();
+				}
+				return;
+			}
+			await new Promise((resolve) => setTimeout(resolve, 500));
+		}
 	}
 
 	setCustomDuration(minutes: number) {
@@ -36,7 +75,7 @@ export class SessionManager {
 		return this.customDuration;
 	}
 
-	startSession(name: string, durationSeconds?: number) {
+	async startSession(name: string, durationSeconds?: number) {
 		const now = Date.now();
 		let duration = durationSeconds;
 
@@ -59,6 +98,12 @@ export class SessionManager {
 			elapsed: 0,
 			lastResumed: now,
 		};
+
+		// Sync with Hub
+		if (this.hubService.isAvailable()) {
+			await this.hubService.startSession(name, Math.ceil(duration / 60));
+		}
+
 		this.audioService.playStart();
 		this.notifyListeners();
 	}
@@ -71,6 +116,8 @@ export class SessionManager {
 			this.activeSession.status = "paused";
 			this.audioService.playPause();
 			this.notifyListeners();
+
+			// Note: Hub doesn't support pause yet, so we don't notify it.
 		}
 	}
 
@@ -83,9 +130,15 @@ export class SessionManager {
 		}
 	}
 
-	stopSession() {
+	async stopSession() {
 		this.audioService.stopAlarm();
 		this.activeSession = null;
+
+		// Sync with Hub
+		if (this.hubService.isAvailable()) {
+			await this.hubService.endSession();
+		}
+
 		this.notifyListeners();
 	}
 
@@ -98,6 +151,9 @@ export class SessionManager {
 			this.activeSession.startTime = now; // Technically a new start
 			this.activeSession.status = "running";
 			this.notifyListeners();
+
+			// For Hub, this is tricky. We should probably restart the session there too if we want accurate logs.
+			// But for now keeping it simple. Maybe todo for later.
 		}
 	}
 
@@ -126,22 +182,35 @@ export class SessionManager {
 			);
 
 			if (remaining <= 0) {
-				this.completeSession();
+				void this.completeSession();
 			}
 		}
 	}
 
-	private completeSession() {
+	private async completeSession() {
 		if (this.activeSession) {
-			this.activeSession.status = "completed";
+			// Capture session reference before nulling it (though we just change status here)
+			const session = this.activeSession;
+
+			session.status = "completed";
 			this.audioService.playComplete(true); // Loop: true
 			this.notifyListeners();
-			this.notifyCompletion(this.activeSession);
+			this.notifyCompletion(session);
+
+			// Sync with Hub - End the session
+			if (this.hubService.isAvailable()) {
+				await this.hubService.endSession();
+			}
 		}
 	}
 
 	getActiveSession(): FocusSession | null {
 		return this.activeSession;
+	}
+
+	async getSessionHistory(limit: number = 10): Promise<any[]> {
+		if (!this.hubService.isAvailable()) return [];
+		return this.hubService.getRecentSessions(limit);
 	}
 
 	onChange(callback: () => void) {

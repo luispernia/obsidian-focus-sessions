@@ -43,7 +43,7 @@ export class SessionEndModal extends Modal {
 		// Finish Action
 		const finishBtn = controls.createEl("button", { cls: "mod-cta fs-finish-btn", text: "Finish session" });
 		finishBtn.onclick = () => {
-			this.sessionManager.stopSession(); // Explicit stop
+			void this.sessionManager.stopSession(); // Explicit stop
 			this.close();
 		};
 	}
@@ -58,7 +58,7 @@ export class SessionEndModal extends Modal {
 		// changed the state to "running" (via addTime) before closing.
 		const session = this.sessionManager.getActiveSession();
 		if (session && session.status === "completed") {
-			this.sessionManager.stopSession();
+			void this.sessionManager.stopSession();
 		}
 	}
 }

@@ -122,7 +122,8 @@
 		color: var(--text-normal);
 		background: transparent;
 		border: none;
-		width: 1.2ch; /* Approx width for 2 digits */
+		width: 5rem; /* Approx width for 2 digits */
+		height: 4rem;
 		text-align: center;
 		padding: 0;
 		-moz-appearance: textfield;
